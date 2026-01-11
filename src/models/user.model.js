@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { jwt, TokenExpiredError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 const userSchema = new Schema(
@@ -49,13 +49,15 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
+// So, while using mongoose we can use thwo types of hooks for our major validations (pre hook for apply some logic before any event)
+// or (post hook for apply some logic after any event ("save", "ismodified" "update" etc.) )
 userSchema.pre("save", async function (next) {
-  if (this.isModified("password")) {
-    this.password = bcrypt.hash(this.password, 10);
-    next();
-  }
+  // checking if password is not modified then we return noneed to perform any action like (hashing).
+  if (!this.isModified("password")) return next();
+  // and if password is modified or new then we will hash the password first then save it in DB.
+  this.password = await bcrypt.hash(this.password, 10);
   next();
-});
+})
 
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
