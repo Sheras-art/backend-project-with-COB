@@ -1,16 +1,16 @@
 import multer from "multer";
 
 const storage = multer.diskStorage({
-    destination: function(req, file, cb){
-        cb(null , "./public")
-    },
-    filename: function(req, file, cb) {
-        cb(null, file.originalname)
-    }
-})
+  destination: function (req, file, cb) {
+    cb(null, "./public/temp");
+  },
+  filename: function (req, file, cb) {
+    const safeName = file.originalname.replace(/\s+/g, "_"); // replace spaces
+    const uniqueName = Date.now() + "-" + safeName;
+    cb(null, uniqueName);
+  },
+});
 
-const upload = multer({
-    storage: storage
-})
-
-export default upload;
+export const upload = multer({
+  storage: storage,
+});

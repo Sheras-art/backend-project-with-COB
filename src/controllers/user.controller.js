@@ -19,7 +19,7 @@ const registerUser = asyncHandler(async (req, resp) => {
 
   // get user details from frontend
   const { fullname, email, username, password } = req.body;
-  console.log("email :", email);
+  console.log("email :", email, req.files);
 
   // validation like not empty fields
   if (
@@ -29,7 +29,7 @@ const registerUser = asyncHandler(async (req, resp) => {
   }
 
   // check if user already exists: by username or email
-  const existedUser = User.findOne({
+  const existedUser = await User.findOne({
     $or: [{ email }, { username }],
   });
 
@@ -41,6 +41,9 @@ const registerUser = asyncHandler(async (req, resp) => {
   const avatarLocalPath = req.files?.avatar[0]?.path;
   const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
+  console.log(avatarLocalPath, coverImageLocalPath);
+  
+
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is required");
   }
@@ -48,6 +51,9 @@ const registerUser = asyncHandler(async (req, resp) => {
   // upload the images to cloudinary, avatar
   const avatar = await uploadOnCloudinary(avatarLocalPath);
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+
+  console.log(avatar, coverImage);
+  
 
   if (!avatar) {
     throw new ApiError(400, "Avatar file is required");
